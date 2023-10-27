@@ -21,10 +21,23 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.monkeybusiness.parentting"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "15fd7cb8-0385-4305-9b92-1dc8852214ea"
+      }
+    },
+    "owner": "monkey-business",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/15fd7cb8-0385-4305-9b92-1dc8852214ea"
     }
   }
 }
