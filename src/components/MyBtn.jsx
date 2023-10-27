@@ -6,7 +6,7 @@ const MyBtn = ({ onPress, text }) => {
         <TouchableOpacity style={{
             backgroundColor: "lightblue",
             padding: 10,
-            borderRadius: "20%",
+            borderRadius: 6,
             width: 100,
         }}
             onPress={onPress}>
