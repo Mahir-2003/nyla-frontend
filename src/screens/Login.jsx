@@ -11,7 +11,13 @@ export default function LoginScreen({ navigation }) {
     const [password, setPassword] = useState("")
 
     const handleLogin = async () => {
-        await signInWithEmailAndPassword(auth, email, password)
+        // Set default credentials if fields are empty
+        const defaultEmail = 'test@test.com';
+        const defaultPassword = 'Test1234';
+        const loginEmail = email || defaultEmail;
+        const loginPassword = password || defaultPassword;
+    
+        await signInWithEmailAndPassword(auth, loginEmail, loginPassword)
         .then(async (userCredential) => {
             const user = userCredential.user;
             console.log("LOGIN: ", user)
@@ -19,9 +25,11 @@ export default function LoginScreen({ navigation }) {
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            // ..
+            // Handle the error here
+            console.error(errorCode, errorMessage);
         })
     }
+    
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {

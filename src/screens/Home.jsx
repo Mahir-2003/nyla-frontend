@@ -44,6 +44,7 @@ export default function HomeScreen({ navigation }) {
             onPress={() =>{
                 navigation.navigate("ChatAssistant");
             }}/>
+        <View style={{marginBottom: 10}}/>
         <MyBtn text={"Go to Learn"}
             onPress={() =>{
                 navigation.navigate("Learn");
