@@ -4,11 +4,14 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Image,
 } from "react-native";
 import "firebase/firestore";
 import { db } from "../utils/firebase";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
+import LearnIcon from "../components/Assets";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function LearnScreen({ navigation }) {
   const [courses, setCourses] = useState([]);
@@ -37,67 +40,86 @@ export default function LearnScreen({ navigation }) {
       onPress={() => navigation.navigate("Course", { courseId: item.id })}
     >
       <View style={styles.imageContainer}>
-        <Text>Image</Text>
+        <LearnIcon style={styles.image} source={item.name} />
       </View>
       <View style={styles.subContainer}>
         <Text style={styles.lessonText}>{item.name}</Text>
-        <Text>Add Description</Text>
+        <Text style={styles.descriptionText}>{item.description}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <Text>Learn Screen</Text>
-      <View style={styles.lessonContainer}>
-        <FlatList
-          data={courses}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-        />
+    <LinearGradient
+      colors={["#daaaab", "#f4eaf5", "#e8ccd1"]}
+      style={styles.linearGradient}
+      start={{ x: 0, y: 0 }} // coordinates for the start of the gradient
+      end={{ x: 1, y: 1 }} // coordinates for the end of the gradient
+    >
+      <View style={styles.container}>
+        <Text>Learn Screen</Text>
+        <View style={styles.lessonContainer}>
+          <FlatList
+            data={courses}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#666", // Use a light background
     alignItems: "center", // Center items horizontally
     justifyContent: "center", // Center items vertically
+  },
+  linearGradient: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 5,
   },
   lessonContainer: {
     paddingLeft: 15,
     paddingRight: 15,
     flex: 1,
-    backgroundColor: "#fff", // Use a light background
     width: "100%", // Make the lesson container full width
   },
   listContainer: {
     width: "100%", // Make the lesson container full width
     flex: 1,
-    backgroundColor: "red",
   },
   listItem: {
-    backgroundColor: "lightblue",
+    backgroundColor: "white",
     width: "100%", // Make the lesson container full width
-    padding: 15,
+    padding: 20,
     height: 100,
-    marginBottom: 10,
+    marginBottom: 12.5,
     borderRadius: 15,
     flexDirection: "row",
+
+    shadowOffset: { width: 2, height: 4 },
+    shadowRadius: 6,
+    shadowOpacity: 0.1,
+    elevation: 15,
   },
   imageContainer: {
-    backgroundColor: "lightgreen",
     aspectRatio: 1,
   },
   subContainer: {
-
+    marginLeft: 18,
   },
   lessonText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-  }
+    marginBottom: 4,
+  },
+  descriptionText: {
+    color: "#505050",
+  },
+  image: {},
 });
