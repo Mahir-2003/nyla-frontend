@@ -11,6 +11,8 @@ import FeedScreen from "./src/screens/Feed";
 import ChatAssistantScreen from "./src/screens/ChatAssistant";
 import LearnScreen from "./src/screens/Learn";
 import CourseScreen from "./src/screens/Course";
+import LessonScreen from "./src/screens/Lesson";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +28,7 @@ function App() {
         <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen} />
         <Stack.Screen name="Learn" component={LearnScreen} />
         <Stack.Screen name="Course" component={CourseScreen} />
+        <Stack.Screen name="Lesson" component={LessonScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

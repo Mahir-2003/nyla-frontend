@@ -1,33 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
-import { db } from '../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+import { db } from "../utils/firebase";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-const LessonDetailsScreen = ({ route }) => {
+const LessonScreen = () => {
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
   const route = useRoute();
+  const [selections, setSelections] = useState({});
 
   useEffect(() => {
     const fetchLesson = async () => {
-      const { lessonId } = route.params;
-      const lessonRef = doc(db, 'lessons', lessonId);
-      setLoading(true);
+      const { courseId, unitId, lessonId } = route.params;
+      const lessonRef = doc(
+        db,
+        "courses",
+        courseId,
+        "units",
+        unitId,
+        "lessons",
+        lessonId
+      );
+      const questionsCollectionRef = collection(lessonRef, "questions");
 
+      setLoading(true);
       try {
         const lessonSnapshot = await getDoc(lessonRef);
         if (!lessonSnapshot.exists()) {
-          console.log('Lesson not found!');
+          console.log("Lesson not found!");
           setLoading(false);
           return;
         }
-        setLesson(lessonSnapshot.data());
+
+        const questionsSnapshot = await getDocs(questionsCollectionRef);
+        const questions = questionsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setLesson({
+          ...lessonSnapshot.data(),
+          questions,
+        });
       } catch (error) {
-        console.error('Error fetching lesson:', error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching lesson:", error);
       }
+      setLoading(false);
     };
 
     fetchLesson();
@@ -36,6 +64,102 @@ const LessonDetailsScreen = ({ route }) => {
   if (loading) {
     return <ActivityIndicator />;
   }
+
+  const handleOptionPress = (question, selectedOption) => {
+    const isCorrect = question.answer === selectedOption;
+    setSelections((prevSelections) => ({
+      ...prevSelections,
+      [question.id]: { selectedOption, isCorrect },
+    }));
+  };
+
+  const handleInputChange = (questionId, text) => {
+    setSelections((prevSelections) => ({
+      ...prevSelections,
+      [questionId]: {
+        ...prevSelections[questionId],
+        userInput: text,
+        isCorrect: undefined,
+      },
+    }));
+  };
+
+  const handleSubmitAnswer = (question) => {
+    const userAnswer = selections[question.id]?.userInput || "";
+    const correctAnswer = question.answer
+      ? question.answer.trim().toLowerCase()
+      : "";
+    const isCorrect = correctAnswer === userAnswer.trim().toLowerCase();
+    setSelections((prevSelections) => ({
+      ...prevSelections,
+      [question.id]: { ...prevSelections[question.id], isCorrect: isCorrect },
+    }));
+  };
+
+  const renderOptions = (question) =>
+    question.options.map((option, optionIndex) => {
+      const isSelected = selections[question.id]?.selectedOption === option;
+      const isCorrect = selections[question.id]?.isCorrect;
+      let backgroundColor = "#f0f0f0";
+      if (isSelected) {
+        backgroundColor = isCorrect ? "lightgreen" : "lightcoral";
+      }
+
+      return (
+        <TouchableOpacity
+          key={option}
+          style={[styles.optionButton, { backgroundColor }]}
+          onPress={() => handleOptionPress(question, option)}
+          disabled={isSelected}
+        >
+          <Text style={styles.optionText}>{option}</Text>
+        </TouchableOpacity>
+      );
+    });
+
+  const renderFillInTheBlank = (question) => {
+    const userInput = selections[question.id]?.userInput || "";
+    const isCorrect = selections[question.id]?.isCorrect;
+    let inputBackgroundColor = "#fff"; // default white background
+
+    // Only set the background color if isCorrect has a boolean value
+    if (userInput.length > 0 && isCorrect !== undefined) {
+      inputBackgroundColor = isCorrect ? "lightgreen" : "lightcoral";
+    } else {
+      // When the user is typing (and isCorrect is undefined), keep the default background
+      inputBackgroundColor = "#fff";
+    }
+
+    return (
+      <View style={styles.fillBlankContainer}>
+        <TextInput
+          key={`input-${question.id}`}
+          style={[styles.inputField, { backgroundColor: inputBackgroundColor }]}
+          onChangeText={(text) => handleInputChange(question.id, text)}
+          placeholder="Type your answer here"
+          value={userInput}
+          editable={!isCorrect} // The field is editable only if the answer is not correct
+        />
+        <TouchableOpacity
+          key={`submit-${question.id}`}
+          style={styles.submitButton}
+          onPress={() => handleSubmitAnswer(question)}
+          disabled={isCorrect} // The submit button is disabled only if the answer is correct
+        >
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderArticle = (question) => {
+    return (
+      <View style={styles.articleContainer}>
+        <Text style={styles.articleTitle}>{question.title}</Text>
+        <Text style={styles.articleContent}>{question.content}</Text>
+      </View>
+    );
+  };
 
   if (!lesson) {
     return (
@@ -49,7 +173,18 @@ const LessonDetailsScreen = ({ route }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.lessonTitle}>{lesson.title}</Text>
       <Text style={styles.lessonContent}>{lesson.content}</Text>
-      {/* Add additional lesson details here */}
+      {lesson.questions && lesson.questions.length > 0 && (
+        <View style={styles.questionsContainer}>
+          {lesson.questions.map((question) => (
+            <View key={question.id} style={styles.card}>
+              <Text style={styles.questionText}>{question.text}</Text>
+              {question.type === "multiple-choice" && renderOptions(question)}
+              {question.type === "fill-in-the-blank" && renderFillInTheBlank(question)}
+              {question.type === "article" && renderArticle(question)}
+            </View>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -60,19 +195,99 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   lessonTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: "bold",
     marginBottom: 20,
   },
   lessonContent: {
     fontSize: 16,
     marginBottom: 20,
   },
-  // Add additional styles here
+  questionsContainer: {
+    marginTop: 20,
+  },
+  questionContainer: {
+    marginBottom: 20,
+  },
+  questionText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  optionText: {
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  card: {
+    backgroundColor: "#fff", // white background for the card
+    borderRadius: 8, // rounded corners
+    padding: 16, // space inside the card
+    marginVertical: 8, // space between cards vertically
+    marginHorizontal: 16, // space on the sides
+    shadowOpacity: 0.1, // shadow to make the card "pop" a little
+    shadowRadius: 3, // how "spread out" the shadow should be
+    shadowColor: "#000", // black shadow
+    shadowOffset: { width: 0, height: 2 }, // where the shadow should fall
+    elevation: 3, // shadow for Android
+  },
+  questionText: {
+    fontSize: 18, // size of the question text
+    fontWeight: "bold", // make the text bold
+    color: "#333", // dark text for readability
+    marginBottom: 8, // space after the question
+  },
+  optionButton: {
+    padding: 12, // space inside the button
+    marginVertical: 4, // space between options vertically
+    borderRadius: 4, // rounded corners for buttons
+    alignItems: "center", // center the text inside
+    justifyContent: "center", // center the text vertically
+    // Removed the background color here because it's now handled dynamically
+  },
+  optionText: {
+    fontSize: 16, // size of the option text
+    color: "#000", // black text
+    // if option button is selected, you might want to change the text color
+  },
+  inputField: {
+    flex: 1, // Take up all available space
+    borderColor: "#ddd", // light gray border
+    borderWidth: 1, // size of the border
+    borderRadius: 4, // rounded corners
+    padding: 12, // space inside the input field
+    marginVertical: 4, // space between input fields vertically
+    fontSize: 16, // size of the input text
+    color: "#000", // text color inside the input
+  },
+  fillBlankContainer: {
+    flexDirection: "row", // Align input and button in a row
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  submitButton: {
+    padding: 10,
+    marginLeft: 10,
+    backgroundColor: "blue",
+    borderRadius: 5,
+  },
+  submitButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  articleContainer: {
+    marginBottom: 20,
+  },
+  articleTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  articleContent: {
+    fontSize: 16,
+  },
 });
 
-export default LessonDetailsScreen;
+export default LessonScreen;
