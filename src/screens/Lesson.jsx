@@ -8,16 +8,28 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { db } from "../utils/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../utils/firebase";
+import { collection, getDocs, doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 const LessonScreen = () => {
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const [checkForCompletion, setCheckForCompletion] = useState(false);
   const route = useRoute();
   const [selections, setSelections] = useState({});
+
+  useEffect(() => {
+    if (checkForCompletion) {
+      console.log("HAHAH");
+      // Perform the check
+      checkCompletionAndAwardExperience(selections);
+
+      // Reset the check flag
+      setCheckForCompletion(false);
+    }
+  }, [selections, checkForCompletion]);
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -48,10 +60,22 @@ const LessonScreen = () => {
           ...doc.data(),
         }));
 
+        // Initialize selections state with all questions isCorrect set to false
+        const initialSelections = questions.reduce((acc, question) => {
+          if (question.type === "article") {
+            acc[question.id] = { isCorrect: true };
+          } else {
+            acc[question.id] = { isCorrect: false };
+          }
+          return acc;
+        }, {});
+
         setLesson({
           ...lessonSnapshot.data(),
           questions,
         });
+
+        setSelections(initialSelections);
       } catch (error) {
         console.error("Error fetching lesson:", error);
       }
@@ -65,12 +89,46 @@ const LessonScreen = () => {
     return <ActivityIndicator />;
   }
 
+  const checkCompletionAndAwardExperience = async (currentSelections) => {
+    // Use the currentSelections instead of selections state
+    const allCorrect = lesson.questions.every(
+      (question) => question.type === 'article' || currentSelections[question.id]?.isCorrect
+    );
+
+    if (allCorrect) {
+      // If all answers are correct, mark the lesson as complete and update experience
+      await updateLessonCompletionAndExperience();
+    }
+  };
+
+  const updateLessonCompletionAndExperience = async () => {
+    const { courseId, unitId, lessonId } = route.params;
+    const userId = auth.currentUser.uid; // Assuming you have access to the authenticated user
+
+    // Firestore paths
+    const userRef = doc(db, "users", userId);
+    const lessonCompletionPath = `courseProgress.${courseId}.units.${unitId}.lessons.${lessonId}.completed`;
+
+    console.log("Updating lesson completion and experience...");
+
+    // Firestore update
+    await updateDoc(userRef, {
+      [lessonCompletionPath]: true,
+      // Assuming experience is a simple increment. Adjust as needed.
+      experience: increment(1),
+    });
+    console.log("Lesson completion and experience updated!");
+  };
+
   const handleOptionPress = (question, selectedOption) => {
     const isCorrect = question.answer === selectedOption;
     setSelections((prevSelections) => ({
       ...prevSelections,
       [question.id]: { selectedOption, isCorrect },
     }));
+
+    // Indicate that we need to check for completion on the next update
+    setCheckForCompletion(true);
   };
 
   const handleInputChange = (questionId, text) => {
@@ -90,10 +148,16 @@ const LessonScreen = () => {
       ? question.answer.trim().toLowerCase()
       : "";
     const isCorrect = correctAnswer === userAnswer.trim().toLowerCase();
-    setSelections((prevSelections) => ({
-      ...prevSelections,
-      [question.id]: { ...prevSelections[question.id], isCorrect: isCorrect },
-    }));
+    setSelections((prevSelections) => {
+      const newSelections = {
+        ...prevSelections,
+        [question.id]: { ...prevSelections[question.id], isCorrect: isCorrect },
+      };
+
+      setCheckForCompletion(true);
+
+      return newSelections;
+    });
   };
 
   const renderOptions = (question) =>
@@ -179,7 +243,8 @@ const LessonScreen = () => {
             <View key={question.id} style={styles.card}>
               <Text style={styles.questionText}>{question.text}</Text>
               {question.type === "multiple-choice" && renderOptions(question)}
-              {question.type === "fill-in-the-blank" && renderFillInTheBlank(question)}
+              {question.type === "fill-in-the-blank" &&
+                renderFillInTheBlank(question)}
               {question.type === "article" && renderArticle(question)}
             </View>
           ))}
