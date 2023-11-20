@@ -13,6 +13,8 @@ import ChatAssistantScreen from "./src/screens/ChatAssistant";
 import LearnScreen from "./src/screens/Learn";
 import CourseScreen from "./src/screens/Course";
 import { Ionicons } from '@expo/vector-icons';
+import LessonScreen from "./src/screens/Lesson";
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -52,35 +54,19 @@ function HomeTabs() {
 
 // Tab Navigation
 function App() {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false}} headerMode="screen">
-          <Stack.Screen name="Signup" component={SignupScreen}/>
-          <Stack.Screen name="Login" component={LoginScreen}/>
-          <Stack.Screen name="Home" component={HomeTabs}/>
-          <Stack.Screen name="CreatePost" component={CreatePostScreen}/>
-          <Stack.Screen name="Course" component={CourseScreen}/>
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
-
-// Stack navigation
-// function App() {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator screenOptions={{ headerShown: false}} headerMode="screen">
-//         <Stack.Screen name="Signup" component={SignupScreen}/>
-//         <Stack.Screen name="Login" component={LoginScreen}/>
-//         <Stack.Screen name="Home" component={HomeScreen}/>
-//         <Stack.Screen name="CreatePost" component={CreatePostScreen}/>
-//         <Stack.Screen name="Feed" component={FeedScreen}/>
-//         <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen}/>
-//         <Stack.Screen name="Learn" component={LearnScreen}/>
-//         <Stack.Screen name="Course" component={CourseScreen}/>
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// }
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false}} headerMode="screen">
+        <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeTabs}/>
+        <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+        <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen} />
+        <Stack.Screen name="Course" component={CourseScreen} />
+        <Stack.Screen name="Lesson" component={LessonScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default App;

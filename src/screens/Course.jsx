@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { db } from '../utils/firebase';
-import { doc, collection, getDoc, getDocs } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import { db } from "../utils/firebase";
+import { doc, collection, getDoc, getDocs } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
 
 const CourseScreen = ({ route }) => {
   const [course, setCourse] = useState(null);
@@ -12,38 +20,40 @@ const CourseScreen = ({ route }) => {
 
   useEffect(() => {
     const { courseId } = route.params;
-    const courseRef = doc(db, 'courses', courseId);
+    const courseRef = doc(db, "courses", courseId);
 
     const fetchCourseAndUnits = async () => {
       setLoading(true);
       try {
         const courseSnapshot = await getDoc(courseRef);
         if (!courseSnapshot.exists()) {
-          console.log('Course not found!');
+          console.log("Course not found!");
           setLoading(false);
           return;
         }
         setCourse(courseSnapshot.data());
 
-        const unitsSnapshot = await getDocs(collection(courseRef, 'units'));
+        const unitsSnapshot = await getDocs(collection(courseRef, "units"));
         const unitsDataPromises = unitsSnapshot.docs.map(async (unitDoc) => {
-            const unitData = unitDoc.data();
-            unitData.id = unitDoc.id;
-            // Initialize lessons as an empty array to ensure it's never undefined
-            unitData.lessons = [];
-      
-            try {
-              const lessonsSnapshot = await getDocs(collection(unitDoc.ref, 'lessons'));
-              unitData.lessons = lessonsSnapshot.docs.map((lessonDoc) => ({
-                ...lessonDoc.data(),
-                id: lessonDoc.id,
-              }));
-            } catch (error) {
-              console.error('Error fetching lessons:', error);
-              // You could handle the error here, e.g., by setting an error state
-            }
-            return unitData;
-          });
+          const unitData = unitDoc.data();
+          unitData.id = unitDoc.id;
+          // Initialize lessons as an empty array to ensure it's never undefined
+          unitData.lessons = [];
+
+          try {
+            const lessonsSnapshot = await getDocs(
+              collection(unitDoc.ref, "lessons")
+            );
+            unitData.lessons = lessonsSnapshot.docs.map((lessonDoc) => ({
+              ...lessonDoc.data(),
+              id: lessonDoc.id,
+            }));
+          } catch (error) {
+            console.error("Error fetching lessons:", error);
+            // You could handle the error here, e.g., by setting an error state
+          }
+          return unitData;
+        });
 
         const unitsData = await Promise.all(unitsDataPromises);
         setUnits(unitsData);
@@ -56,9 +66,8 @@ const CourseScreen = ({ route }) => {
     fetchCourseAndUnits();
   }, [route.params]);
 
-  const handleLessonPress = (lessonId) => {
-    // Navigate to a new screen with the lessonId to display the lesson details
-    navigation.navigate('LessonDetailsScreen', { lessonId });
+  const handleLessonPress = (courseId, unitId, lessonId) => {
+    navigation.navigate("Lesson", { courseId, unitId, lessonId });
   };
 
   if (loading) {
@@ -83,7 +92,7 @@ const CourseScreen = ({ route }) => {
             <TouchableOpacity
               key={lesson.id}
               style={styles.button}
-              onPress={() => handleLessonPress(lesson.id)}
+              onPress={() => handleLessonPress(route.params.courseId, unit.id, lesson.id)}
             >
               <Text style={styles.buttonText}>{lesson.title}</Text>
             </TouchableOpacity>
@@ -101,12 +110,12 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   courseTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   unitContainer: {
@@ -114,19 +123,19 @@ const styles = StyleSheet.create({
   },
   unitTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     padding: 15,
     borderRadius: 5,
     marginBottom: 10,
   },
   buttonText: {
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
     fontSize: 18,
   },
 });
