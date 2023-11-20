@@ -79,6 +79,9 @@ const ChatAssistantScreen = () => {
         { role: "bot", content: aiResponse.choices[0].message.content },
       ]);
     } catch (error) {
+      setIsLoading(false); // Stop loading if there is an error
+      console.error("Error fetching response from OpenAI:", error);
+      throw error;
       // Handle error (e.g., show an alert)
     }
 

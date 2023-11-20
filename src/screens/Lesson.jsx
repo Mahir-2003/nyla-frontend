@@ -56,6 +56,7 @@ const LessonDetailsScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    topPadding: 56,
     padding: 10,
   },
   centered: {

@@ -96,6 +96,7 @@ const CourseScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 56,
     padding: 10,
   },
   centered: {

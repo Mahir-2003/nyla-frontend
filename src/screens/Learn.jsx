@@ -5,13 +5,17 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  SafeAreaView
 } from "react-native";
+import { useCallback } from "react";
 import "firebase/firestore";
 import { db } from "../utils/firebase";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import LearnIcon from "../components/Assets";
 import { LinearGradient } from "expo-linear-gradient";
+import { headerPadding } from "../styles/styles";
+
 
 export default function LearnScreen({ navigation }) {
   const [courses, setCourses] = useState([]);
@@ -34,7 +38,7 @@ export default function LearnScreen({ navigation }) {
     };
   }, []);
 
-  const renderItem = ({ item }) => (
+  const renderItem = useCallback(({ item }) => ( // Use useCallback here
     <TouchableOpacity
       style={styles.listItem}
       onPress={() => navigation.navigate("Course", { courseId: item.id })}
@@ -47,33 +51,34 @@ export default function LearnScreen({ navigation }) {
         <Text style={styles.descriptionText}>{item.description}</Text>
       </View>
     </TouchableOpacity>
-  );
+  ), [navigation]);
 
   return (
-    <LinearGradient
-      colors={["#daaaab", "#f4eaf5", "#e8ccd1"]}
-      style={styles.linearGradient}
-      start={{ x: 0, y: 0 }} // coordinates for the start of the gradient
-      end={{ x: 1, y: 1 }} // coordinates for the end of the gradient
-    >
-      <View style={styles.container}>
-        <Text>Learn Screen</Text>
-        <View style={styles.lessonContainer}>
-          <FlatList
-            data={courses}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContainer}
-          />
+      <LinearGradient
+        colors={["#daaaab", "#f4eaf5", "#e8ccd1"]}
+        style={styles.linearGradient}
+        start={{ x: 0, y: 0 }} // coordinates for the start of the gradient
+        end={{ x: 1, y: 1 }} // coordinates for the end of the gradient
+      >
+        <View style={styles.container}>
+          <Text>Learn Screen</Text>
+          <View style={styles.lessonContainer}>
+            <FlatList
+              data={courses}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContainer}
+            />
+          </View>
         </View>
-      </View>
-    </LinearGradient>
+      </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 56, //size of heading
     alignItems: "center", // Center items horizontally
     justifyContent: "center", // Center items vertically
   },
