@@ -1,8 +1,9 @@
-import { View, Text } from 'react-native';
+import { View, Text, SafeAreaView } from 'react-native';
 import MyBtn from '../components/MyBtn';
 import { auth, db } from '../utils/firebase';
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from "firebase/firestore"
+import { headerPadding } from '../styles/styles';
 
 export default function HomeScreen({ navigation }) {
 
@@ -27,15 +28,16 @@ export default function HomeScreen({ navigation }) {
     }
 
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <SafeAreaView style={headerPadding.container }>
         <Text>Welcome {userData?.name}</Text>
         <View style={{marginBottom: 10}}/>
+        {/* Buttons to navigate to other screens */}
         <MyBtn text={"Log out"}
             onPress={() =>{
                 signOut();
             }}/>
-        <View style={{marginBottom: 10}}/>
-        <MyBtn text={"Go to feed"}
+        {/* <View style={{marginBottom: 10}}/>
+        <MyBtn text={"Go to feed"}r
             onPress={() =>{
                 navigation.navigate("Feed");
             }}/>
@@ -48,7 +50,7 @@ export default function HomeScreen({ navigation }) {
         <MyBtn text={"Go to Learn"}
             onPress={() =>{
                 navigation.navigate("Learn");
-            }}/>
-      </View>
+            }}/> */}
+      </SafeAreaView>
     );
   }

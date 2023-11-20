@@ -1,7 +1,8 @@
-import { View, Text, TextInput, FlatList } from "react-native";
+import { View, Text, TextInput, FlatList, StyleSheet, SafeAreaView } from "react-native";
 import MyBtn from "../components/MyBtn";
 import { auth, db } from "../utils/firebase";
 import { useState, useEffect } from "react";
+import { headerPadding } from '../styles/styles';
 import {
   collection,
   getDoc,
@@ -11,6 +12,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { getAuthorByUID } from "../utils/firestore";
+// import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function FeedScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
@@ -55,8 +57,9 @@ export default function FeedScreen({ navigation }) {
   }, []);
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Feed Sceen</Text>
+    // <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <SafeAreaView style={headerPadding.container}>
+      <Text>Feed Screen</Text>
       <FlatList
         data={posts}
         renderItem={({ item }) => (
@@ -78,6 +81,6 @@ export default function FeedScreen({ navigation }) {
           navigation.navigate("CreatePost");
         }}
       />
-    </View>
+    </SafeAreaView>
   );
 }

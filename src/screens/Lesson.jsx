@@ -256,7 +256,9 @@ const LessonScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    top: 56,
     padding: 10,
+    paddingBottom: 100, // Add bottom padding here
   },
   centered: {
     flex: 1,

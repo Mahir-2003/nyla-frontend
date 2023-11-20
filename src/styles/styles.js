@@ -17,6 +17,15 @@ const darkStyles = StyleSheet.create({
   },
 });
 
+export const headerPadding = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 56, // Adjust this value as needed
+    alignItems: "center",
+    justifyContent: "center"
+  },
+});
+
 const styles = colorScheme === 'dark' ? darkStyles : lightStyles;
 
 export default styles;
