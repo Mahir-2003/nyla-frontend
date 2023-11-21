@@ -1,5 +1,6 @@
 // styles.js
 import { StyleSheet, Appearance } from 'react-native';
+import colors from './colors';
 
 const colorScheme = Appearance.getColorScheme();
 
@@ -20,9 +21,9 @@ const darkStyles = StyleSheet.create({
 export const headerPadding = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 56, // Adjust this value as needed
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: colors.primary,
   },
 });
 

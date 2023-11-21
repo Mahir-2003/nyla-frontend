@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import LearnIcon from "../components/Assets";
 import { LinearGradient } from "expo-linear-gradient";
 import { headerPadding } from "../styles/styles";
+import colors from "../styles/colors";
 
 
 export default function LearnScreen({ navigation }) {
@@ -55,7 +56,7 @@ export default function LearnScreen({ navigation }) {
 
   return (
       <LinearGradient
-        colors={["#daaaab", "#f4eaf5", "#e8ccd1"]}
+        colors={[colors.tertiaryPink, colors.secondaryPink, colors.primary]}
         style={styles.linearGradient}
         start={{ x: 0, y: 0 }} // coordinates for the start of the gradient
         end={{ x: 1, y: 1 }} // coordinates for the end of the gradient

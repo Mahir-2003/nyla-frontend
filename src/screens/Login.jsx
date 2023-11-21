@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }) {
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
             if (user) {
-                navigation.reset({index: 0, routes: [{name: "Home"}]})
+                navigation.reset({index: 0, routes: [{name: "Main"}]})
             } else {
                 console.log("NO USER")
             }
