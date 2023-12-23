@@ -8,7 +8,7 @@ const commonStyles = {
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "start",
   },
   card: {
     marginLeft: 10,
