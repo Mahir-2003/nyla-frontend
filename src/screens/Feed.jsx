@@ -1,18 +1,11 @@
-import { View, Text, TextInput, FlatList, StyleSheet, SafeAreaView } from "react-native";
+import { FlatList, SafeAreaView, TouchableOpacity } from "react-native";
 import MyBtn from "../components/MyBtn";
-import { auth, db } from "../utils/firebase";
+import { db } from "../utils/firebase";
 import { useState, useEffect } from "react";
-import { headerPadding } from '../styles/styles';
-import {
-  collection,
-  getDoc,
-  doc as docRef,
-  query,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore";
+import styles from "../styles/styles";
+import { Post } from "../components/Post";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { getAuthorByUID } from "../utils/firestore";
-// import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function FeedScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
@@ -25,22 +18,24 @@ export default function FeedScreen({ navigation }) {
 
       querySnapshot.forEach((document) => {
         const authorUID = document.data().author;
+        const postData = document.data();
 
         fetchAuthors.push(
-          getAuthorByUID(authorUID)
-            .then((authorData) => {
-              if (authorData) {
-                postsData.push({
-                  id: document.id,
-                  date: document.data().createdAt.toDate().toDateString(),
-                  ...document.data(),
-                  author: authorData,
-                });
-              } else {
-                console.log("Author doesn't exist:", authorUID);
-              }
-            })
-            .catch((error) => console.log("Error fetching user:", error))
+          getAuthorByUID(authorUID).then((authorData) => {
+            if (authorData) {
+              postsData.push({
+                id: document.id,
+                date: postData.createdAt.toDate(),
+                likes: postData.likes || 0, // Add likes
+                likedBy: postData.likedBy || [], // Initialize likedBy as an empty array
+                commentCount: postData.comments ? postData.comments.length : 0, // Get the length of comments array if it exists, otherwise 0
+                ...postData,
+                author: authorData,
+              });
+            } else {
+              console.log("Author doesn't exist:", authorUID);
+            }
+          })
         );
       });
 
@@ -56,24 +51,25 @@ export default function FeedScreen({ navigation }) {
     };
   }, []);
 
+  const handlePostClick = (postId) => {
+    navigation.navigate("PostView", { postId });
+  };
+
   return (
-    // <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-    <SafeAreaView style={headerPadding.container}>
-      <Text>Feed Screen</Text>
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={posts}
         renderItem={({ item }) => (
-          <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-              {item.title}
-            </Text>
-            <Text style={{fontWeight: "normal", fontSize: 15}}>{item.author.name}: {item.date}</Text>
-            <View style={{ marginBottom: 5 }}/>
-            <Text>{item.content}</Text>
-          </View>
+          <TouchableOpacity onPress={() => handlePostClick(item.id)}>
+            <Post
+              item={item}
+              styles={styles}
+              posts={posts}
+              setPosts={setPosts}
+            />
+          </TouchableOpacity>
         )}
         keyExtractor={(item) => item.id}
-        style={{ width: "100%" }}
       />
       <MyBtn
         text={"Create Post"}

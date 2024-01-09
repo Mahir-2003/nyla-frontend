@@ -9,7 +9,7 @@ import MyBtn from "../components/MyBtn";
 import { auth, db } from "../utils/firebase";
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { headerPadding } from "../styles/styles";
+import styles from "../styles/styles";
 import colors from "../styles/colors";
 
 export default function HomeScreen({ navigation }) {
@@ -37,34 +37,34 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={headerPadding.container}>
+    <SafeAreaView style={styles.container}>
       <Text>Welcome {userData?.name}</Text>
       <View style={{ marginBottom: 10 }} />
 
-      <View style={styles.container}>
+      <View style={homeStyle.container}>
         <TouchableOpacity
-          style={styles.profileButton}
+          style={homeStyle.profileButton}
           onPress={() => handleProfileSelection("Child 1")}
         >
-          <Text style={styles.profileButtonText}>Profile 1</Text>
+          <Text style={homeStyle.profileButtonText}>Profile 1</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.profileButton}
+          style={homeStyle.profileButton}
           onPress={() => handleProfileSelection("Child 2")}
         >
-          <Text style={styles.profileButtonText}>Haroldas</Text>
+          <Text style={homeStyle.profileButtonText}>Haroldas</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.profileButton}
+          style={homeStyle.profileButton}
           onPress={() => handleProfileSelection("Child 3")}
         >
-          <Text style={styles.profileButtonText}>Profile 3</Text>
+          <Text style={homeStyle.profileButtonText}>Profile 3</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.addButton}
+          style={homeStyle.addButton}
           onPress={() => handleAddProfile()}
         >
-          <Text style={styles.addButtonText}>Add Profile</Text>
+          <Text style={homeStyle.addButtonText}>Add Profile</Text>
         </TouchableOpacity>
       </View>
       {/* <MyBtn style={{ backgroundColor: colors.secondaryPink }}
@@ -77,7 +77,7 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const homeStyle = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "row",

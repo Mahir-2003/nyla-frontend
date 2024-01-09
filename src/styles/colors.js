@@ -8,6 +8,8 @@ const colors = {
   tertiaryPink: "#ffb5a7",
   secondary: "red",
 
+  alt: "#875166",
+
   danger: "#e74c3c",
   white: "#ffffff",
   black: "#000000",

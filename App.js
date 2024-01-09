@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import LessonScreen from "./src/screens/Lesson";
 import colors from "./src/styles/colors";
 import { useTheme } from 'react-native-paper';
+import PostViewScreen from "./src/screens/PostView";
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -86,6 +87,7 @@ function App() {
         <Stack.Screen name="Lesson" component={LessonScreen} />
         {/* <Stack.Screen name="Account" component={AccountScreen} /> */}
 
+        <Stack.Screen name="PostView" component={PostViewScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
