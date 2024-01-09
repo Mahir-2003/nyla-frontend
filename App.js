@@ -12,6 +12,7 @@ import FeedScreen from "./src/screens/Feed";
 import ChatAssistantScreen from "./src/screens/ChatAssistant";
 import LearnScreen from "./src/screens/Learn";
 import CourseScreen from "./src/screens/Course";
+import AccountScreen from "./src/screens/Account";
 import { Ionicons } from "@expo/vector-icons";
 import LessonScreen from "./src/screens/Lesson";
 import colors from "./src/styles/colors";
@@ -64,7 +65,7 @@ function HomeTabs() {
       <Tab.Screen name="Learn" component={LearnScreen} theme={{ colors: { secondaryContainer: "red" } }}/>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Feed" component={FeedScreen} />
-      {/* <Tab.Screen name="Assistant" component={ChatAssistantScreen} /> */}
+      <Tab.Screen name="Account" component={AccountScreen} />
     </Tab.Navigator>
   );
 }
@@ -84,6 +85,8 @@ function App() {
         <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen} />
         <Stack.Screen name="Course" component={CourseScreen} />
         <Stack.Screen name="Lesson" component={LessonScreen} />
+        {/* <Stack.Screen name="Account" component={AccountScreen} /> */}
+
         <Stack.Screen name="PostView" component={PostViewScreen} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import MyPassword from "../components/MyPassword";
 import MyTextInput from "../components/MyTextInput";
 import MyBtn from "../components/MyBtn";
 import {
@@ -77,10 +78,11 @@ export default function SignupScreen({ navigation }) {
         }}
       />
 
-      <MyTextInput
+      <MyPassword
         placeholder={"Password"}
         autoCapitalize={"none"}
         value={password}
+        secureTextEntry={true} // Add this line to hide the password text
         onChangeText={(e) => {
           setPassword(e);
         }}

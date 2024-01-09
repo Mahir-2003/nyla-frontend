@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import MyPassword from '../components/MyPassword';
 import MyTextInput from '../components/MyTextInput';
 import MyBtn from '../components/MyBtn';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
@@ -48,7 +49,7 @@ export default function LoginScreen({ navigation }) {
             setEmail(e)
         }}/>
 
-        <MyTextInput placeholder={"Password"} autoCapitalize={"none"} value={password} onChangeText={(e)=>{
+        <MyPassword placeholder={"Password"} autoCapitalize={"none"} value={password} secureTextEntry={true} onChangeText={(e)=>{
             setPassword(e)
         }}/>
         <View style={{marginBottom: 20}}/>
