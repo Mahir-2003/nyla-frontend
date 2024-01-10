@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import MyPassword from "../components/MyPassword";
 import MyTextInput from "../components/MyTextInput";
 import MyBtn from "../components/MyBtn";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -15,6 +16,7 @@ import { Image } from "react-native";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
     // Set default credentials if fields are empty
@@ -78,7 +80,7 @@ export default function LoginScreen({ navigation }) {
         }}
       />
       <View style={{ marginBottom: 30 }} />
-      <MyPassword
+      {/* <MyPassword
         placeholder={"Password"}
         autoCapitalize={"none"}
         value={password}
@@ -86,7 +88,33 @@ export default function LoginScreen({ navigation }) {
         onChangeText={(e) => {
           setPassword(e);
         }}
-      />
+      /> */}
+      <View style={{ flexDirection: "row" }}>
+        <TextInput
+          style={styles.input}
+          placeholder={"Password"}
+          autoCapitalize={"none"}
+          value={password}
+          secureTextEntry={!isPasswordVisible}
+          selectionColor={colors.alt}
+          onChangeText={(e) => {
+            setPassword(e);
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+          style={{ marginLeft: 1,
+            marginTop: 6,
+            alignItems: "center",
+            justifyContent: "center" }}
+        >
+          {isPasswordVisible ? (
+            <Ionicons name="eye-off-outline" size={20} />
+          ) : (
+            <Ionicons name="eye-outline" size={20} />
+          )}
+        </TouchableOpacity>
+      </View>
       <View style={{ marginBottom: 30 }} />
       <View style={{ flexDirection: "row", width: "80%" }}>
         <MyBtn
@@ -125,3 +153,20 @@ export default function LoginScreen({ navigation }) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+      height: 40,
+      width: '80%',
+      borderColor: colors.alt,
+      borderBottomWidth: 1.5,
+      backgroundColor: colors.secondaryPink,
+      borderTopEndRadius: 10,
+      borderTopStartRadius: 10,
+      textDecorationColor: colors.alt,
+      margin: 6,
+      marginLeft: 25,
+      padding: 10,
+  },
+});
+
