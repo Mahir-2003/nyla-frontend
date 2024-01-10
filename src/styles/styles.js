@@ -15,7 +15,7 @@ const commonStyles = {
     marginRight: 10,
     marginBottom: 10,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 7.5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,

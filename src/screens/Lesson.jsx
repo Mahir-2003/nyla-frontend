@@ -9,8 +9,21 @@ import {
   TextInput,
 } from "react-native";
 import { auth, db } from "../utils/firebase";
-import { collection, getDocs, doc, getDoc, updateDoc, increment } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  increment,
+  arrayUnion,
+} from "firebase/firestore";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/FontAwesome";
+import colors from "../styles/colors";
+import styles from "../styles/styles";
+import { KeyboardAvoidingView } from "react-native";
 
 const LessonScreen = () => {
   const [lesson, setLesson] = useState(null);
@@ -92,7 +105,8 @@ const LessonScreen = () => {
   const checkCompletionAndAwardExperience = async (currentSelections) => {
     // Use the currentSelections instead of selections state
     const allCorrect = lesson.questions.every(
-      (question) => question.type === 'article' || currentSelections[question.id]?.isCorrect
+      (question) =>
+        question.type === "article" || currentSelections[question.id]?.isCorrect
     );
 
     if (allCorrect) {
@@ -105,6 +119,20 @@ const LessonScreen = () => {
     const { courseId, unitId, lessonId } = route.params;
     const userId = auth.currentUser.uid; // Assuming you have access to the authenticated user
 
+    const lessonRef = doc(
+      db,
+      "courses",
+      courseId,
+      "units",
+      unitId,
+      "lessons",
+      lessonId
+    );
+
+    await updateDoc(lessonRef, {
+      completedBy: arrayUnion(userId),
+    });
+
     // Firestore paths
     const userRef = doc(db, "users", userId);
     const lessonCompletionPath = `courseProgress.${courseId}.units.${unitId}.lessons.${lessonId}.completed`;
@@ -115,8 +143,9 @@ const LessonScreen = () => {
     await updateDoc(userRef, {
       [lessonCompletionPath]: true,
       // Assuming experience is a simple increment. Adjust as needed.
-      experience: increment(1),
+      experience: increment(lesson.experience),
     });
+
     console.log("Lesson completion and experience updated!");
   };
 
@@ -172,11 +201,11 @@ const LessonScreen = () => {
       return (
         <TouchableOpacity
           key={option}
-          style={[styles.optionButton, { backgroundColor }]}
+          style={[lessonStyles.optionButton, { backgroundColor }]}
           onPress={() => handleOptionPress(question, option)}
           disabled={isSelected}
         >
-          <Text style={styles.optionText}>{option}</Text>
+          <Text style={lessonStyles.optionText}>{option}</Text>
         </TouchableOpacity>
       );
     });
@@ -195,10 +224,13 @@ const LessonScreen = () => {
     }
 
     return (
-      <View style={styles.fillBlankContainer}>
+      <View style={lessonStyles.fillBlankContainer}>
         <TextInput
           key={`input-${question.id}`}
-          style={[styles.inputField, { backgroundColor: inputBackgroundColor }]}
+          style={[
+            lessonStyles.inputField,
+            { backgroundColor: inputBackgroundColor },
+          ]}
           onChangeText={(text) => handleInputChange(question.id, text)}
           placeholder="Type your answer here"
           value={userInput}
@@ -206,11 +238,11 @@ const LessonScreen = () => {
         />
         <TouchableOpacity
           key={`submit-${question.id}`}
-          style={styles.submitButton}
+          style={lessonStyles.submitButton}
           onPress={() => handleSubmitAnswer(question)}
           disabled={isCorrect} // The submit button is disabled only if the answer is correct
         >
-          <Text style={styles.submitButtonText}>Submit</Text>
+          <Text style={lessonStyles.submitButtonText}>Submit</Text>
         </TouchableOpacity>
       </View>
     );
@@ -218,45 +250,79 @@ const LessonScreen = () => {
 
   const renderArticle = (question) => {
     return (
-      <View style={styles.articleContainer}>
-        <Text style={styles.articleTitle}>{question.title}</Text>
-        <Text style={styles.articleContent}>{question.content}</Text>
+      <View style={lessonStyles.articleContainer}>
+        <Text style={lessonStyles.articleTitle}>{question.title}</Text>
+        <Text style={lessonStyles.articleContent}>{question.content}</Text>
       </View>
     );
   };
 
   if (!lesson) {
     return (
-      <View style={styles.centered}>
+      <View style={lessonStyles.centered}>
         <Text>No lesson data found.</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.lessonTitle}>{lesson.title}</Text>
-      <Text style={styles.lessonContent}>{lesson.content}</Text>
-      {lesson.questions && lesson.questions.length > 0 && (
-        <View style={styles.questionsContainer}>
-          {lesson.questions.map((question) => (
-            <View key={question.id} style={styles.card}>
-              <Text style={styles.questionText}>{question.text}</Text>
-              {question.type === "multiple-choice" && renderOptions(question)}
-              {question.type === "fill-in-the-blank" &&
-                renderFillInTheBlank(question)}
-              {question.type === "article" && renderArticle(question)}
-            </View>
-          ))}
+    <SafeAreaView
+      style={{ ...styles.container, backgroundColor: colors.primary }}
+    >
+      <View
+        style={{
+          ...styles.card,
+          width: "100%",
+          borderRadius: 0,
+          backgroundColor: colors.white,
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="angle-double-left" size={25} color={colors.alt} />
+        </TouchableOpacity>
+
+        {/* TITLE */}
+        <View style={lessonStyles.pill}>
+          <Text style={lessonStyles.pillText}>{lesson.title}</Text>
         </View>
-      )}
-    </ScrollView>
+
+        {/* STATUS */}
+        <View style={{ ...lessonStyles.pill, borderRadius: 25 }}>
+          <Text style={lessonStyles.pillText}>
+            {lesson.completedBy?.includes(auth.currentUser.uid) ? "✓" : "✗"}
+          </Text>
+        </View>
+      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={lessonStyles.container}>
+          <Text style={lessonStyles.lessonContent}>{lesson.content}</Text>
+          {lesson.questions && lesson.questions.length > 0 && (
+            <View style={lessonStyles.questionsContainer}>
+              {lesson.questions.map((question) => (
+                <View key={question.id} style={lessonStyles.card}>
+                  <Text style={lessonStyles.questionText}>{question.text}</Text>
+                  {question.type === "multiple-choice" &&
+                    renderOptions(question)}
+                  {question.type === "fill-in-the-blank" &&
+                    renderFillInTheBlank(question)}
+                  {question.type === "article" && renderArticle(question)}
+                </View>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const lessonStyles = StyleSheet.create({
   container: {
-    top: 56,
     padding: 10,
     paddingBottom: 100, // Add bottom padding here
   },
@@ -337,7 +403,7 @@ const styles = StyleSheet.create({
   submitButton: {
     padding: 10,
     marginLeft: 10,
-    backgroundColor: "blue",
+    backgroundColor: colors.alt,
     borderRadius: 5,
   },
   submitButtonText: {
@@ -354,6 +420,21 @@ const styles = StyleSheet.create({
   },
   articleContent: {
     fontSize: 16,
+  },
+  pill: {
+    flexDirection: "row",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.alt,
+    paddingHorizontal: 7.5,
+    backgroundColor: colors.secondaryPink,
+    textAlign: "center",
+    marginHorizontal: "10%",
+  },
+  pillText: {
+    color: colors.alt,
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

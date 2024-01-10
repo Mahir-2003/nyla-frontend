@@ -6,16 +6,20 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
 } from "react-native";
-import { db } from "../utils/firebase";
-import { doc, collection, getDoc, getDocs } from "firebase/firestore";
+import { auth, db } from '../utils/firebase';
+import { doc, collection, getDoc, getDocs, query, where } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/FontAwesome";
+import colors from "../styles/colors";
+import styles from "../styles/styles";
 
 const CourseScreen = ({ route }) => {
   const [course, setCourse] = useState(null);
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -47,11 +51,15 @@ const CourseScreen = ({ route }) => {
             unitData.lessons = lessonsSnapshot.docs.map((lessonDoc) => ({
               ...lessonDoc.data(),
               id: lessonDoc.id,
+              completed: (lessonDoc.data().completedBy?.includes(auth.currentUser.uid))
             }));
           } catch (error) {
             console.error("Error fetching lessons:", error);
             // You could handle the error here, e.g., by setting an error state
           }
+
+          
+
           return unitData;
         });
 
@@ -70,6 +78,28 @@ const CourseScreen = ({ route }) => {
     navigation.navigate("Lesson", { courseId, unitId, lessonId });
   };
 
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const getUserData = async () => {
+    const q = query(
+      collection(db, "users"),
+      where("uid", "==", auth.currentUser.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // console.log(doc.id, " => ", doc.data());
+      setUserData(doc.data());
+    });
+  };
+
+  countCompletedLessons = () => {
+    return units.reduce((total, currentCourse) => {
+        return total + currentCourse.lessons.filter(lesson => lesson.completed).length;
+    }, 0);
+  };
+
   if (loading) {
     return <ActivityIndicator />;
   }
@@ -83,30 +113,85 @@ const CourseScreen = ({ route }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.courseTitle}>Course Name: {course.name}</Text>
-      {units.map((unit) => (
-        <View key={unit.id} style={styles.unitContainer}>
-          <Text style={styles.unitTitle}>{unit.title}</Text>
-          {unit.lessons.map((lesson) => (
-            <TouchableOpacity
-              key={lesson.id}
-              style={styles.button}
-              onPress={() => handleLessonPress(route.params.courseId, unit.id, lesson.id)}
-            >
-              <Text style={styles.buttonText}>{lesson.title}</Text>
-            </TouchableOpacity>
-          ))}
+    <SafeAreaView
+      style={{ ...styles.container, backgroundColor: colors.primary }}
+    >
+      <View
+        style={{
+          ...styles.card,
+          width: "100%",
+          borderRadius: 0,
+          backgroundColor: colors.white,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity
+          style={courseStyles.backbutton}
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="angle-double-left" size={25} color={colors.alt} />
+        </TouchableOpacity>
+
+        {/* TOPIC */}
+        <View style={courseStyles.pill}>
+          <Text style={courseStyles.pillText}>{course.name}</Text>
         </View>
-      ))}
-    </ScrollView>
+
+        {/* LEVEL */}
+        <View style={courseStyles.pill}>
+          <Text style={courseStyles.pillText}>✧ {userData.experience}</Text>
+        </View>
+
+        {/* PROGRESS */}
+        <View style={courseStyles.pill}>
+          <Text style={courseStyles.pillText}>{countCompletedLessons()} / {units.reduce((total, unit) => total + unit.lessons.length, 0)}</Text>
+        </View>
+      </View>
+
+      <ScrollView>
+        {units.map((unit) => (
+          <View key={unit.id} style={courseStyles.unitContainer}>
+            <Text style={courseStyles.unitTitle}>{unit.title}</Text>
+            {unit.lessons.map((lesson) => (
+              <TouchableOpacity
+                key={lesson.id}
+                style={{...courseStyles.button, backgroundColor: lesson.completed ? colors.secondaryPink : colors.primary}}
+                onPress={() =>
+                  handleLessonPress(route.params.courseId, unit.id, lesson.id)
+                }
+              >
+                <Text style={courseStyles.buttonText}>{lesson.title}{lesson.completed ? "  ☑" : ""}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const courseStyles = StyleSheet.create({
   container: {
-    paddingTop: 56,
     padding: 10,
+  },
+  backbutton: {
+    paddingHorizontal: 15,
+  },
+  pill: {
+    flexDirection: "row",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.alt,
+    paddingHorizontal: 7.5,
+    backgroundColor: colors.secondaryPink,
+    textAlign: "center",
+  },
+  pillText: {
+    color: colors.alt,
+    fontSize: 18,
+    fontWeight: "bold",
   },
   centered: {
     flex: 1,
@@ -117,6 +202,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color: colors.alt,
   },
   unitContainer: {
     marginBottom: 20,
@@ -128,13 +214,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: colors.secondaryPink,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     marginBottom: 10,
+    borderWidth: 2.5,
+    borderColor: colors.alt,
   },
   buttonText: {
-    color: "white",
+    color: colors.alt,
     textAlign: "center",
     fontSize: 18,
   },

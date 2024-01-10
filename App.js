@@ -16,8 +16,9 @@ import AccountScreen from "./src/screens/Account";
 import { Ionicons } from "@expo/vector-icons";
 import LessonScreen from "./src/screens/Lesson";
 import colors from "./src/styles/colors";
-import { useTheme } from 'react-native-paper';
+import { useTheme } from "react-native-paper";
 import PostViewScreen from "./src/screens/PostView";
+import { StatusBar } from "expo-status-bar";
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -28,7 +29,6 @@ function HomeTabs() {
 
   return (
     <Tab.Navigator
-    
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -43,6 +43,8 @@ function HomeTabs() {
               : "chatbox-ellipses";
           } else if (route.name === "Learn") {
             iconName = focused ? "library-outline" : "library";
+          } else if (route.name === "Account") {
+            iconName = focused ? "person-outline" : "person";
           }
           size = 20;
           // You can return any component that you like here!
@@ -62,7 +64,11 @@ function HomeTabs() {
         shadowRadius: 3.84,
       }}
     >
-      <Tab.Screen name="Learn" component={LearnScreen} theme={{ colors: { secondaryContainer: "red" } }}/>
+      <Tab.Screen
+        name="Learn"
+        component={LearnScreen}
+        theme={{ colors: { secondaryContainer: "red" } }}
+      />
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Account" component={AccountScreen} />
@@ -73,23 +79,26 @@ function HomeTabs() {
 // Tab Navigation
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{ headerShown: false }}
-        headerMode="screen"
-      >
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Main" component={HomeTabs} />
-        <Stack.Screen name="CreatePost" component={CreatePostScreen} />
-        <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen} />
-        <Stack.Screen name="Course" component={CourseScreen} />
-        <Stack.Screen name="Lesson" component={LessonScreen} />
-        {/* <Stack.Screen name="Account" component={AccountScreen} /> */}
+    <>
+      <StatusBar barStyle="dark-content" />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{ headerShown: false }}
+          headerMode="screen"
+        >
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Main" component={HomeTabs} />
+          <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+          <Stack.Screen name="ChatAssistant" component={ChatAssistantScreen} />
+          <Stack.Screen name="Course" component={CourseScreen} />
+          <Stack.Screen name="Lesson" component={LessonScreen} />
+          {/* <Stack.Screen name="Account" component={AccountScreen} /> */}
 
-        <Stack.Screen name="PostView" component={PostViewScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen name="PostView" component={PostViewScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 

@@ -80,7 +80,7 @@ export const Post = ({ item, styles, posts, setPosts }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <View style={{...styles.card, width: "95%"}}>
       <Text style={{ fontWeight: "normal", fontSize: 15, color: "#444444" }}>
         {`${item.author.name}  `}
         <Text style={{ fontWeight: "normal", fontSize: 14, color: "#656565" }}>
@@ -112,7 +112,7 @@ export const Post = ({ item, styles, posts, setPosts }) => {
           <Text style={styles.divider}>|</Text>
           <View style={styles.interaction}>
             <Icon name="comments-o" size={18} color={colors.alt} />
-            <Text style={styles.interactionText}>{item.commentCount}</Text>
+            <Text style={styles.interactionText}>{item.commentIds ? item.commentIds.length : 0}</Text>
           </View>
           <Text style={styles.divider}>|</Text>
           <View style={styles.interaction}>

@@ -4,8 +4,6 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Image,
-  SafeAreaView
 } from "react-native";
 import { useCallback } from "react";
 import "firebase/firestore";
@@ -14,7 +12,6 @@ import { collection, query, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import LearnIcon from "../components/Assets";
 import { LinearGradient } from "expo-linear-gradient";
-import { headerPadding } from "../styles/styles";
 import colors from "../styles/colors";
 
 
@@ -62,7 +59,6 @@ export default function LearnScreen({ navigation }) {
         end={{ x: 1, y: 1 }} // coordinates for the end of the gradient
       >
         <View style={styles.container}>
-          <Text>Learn Screen</Text>
           <View style={styles.lessonContainer}>
             <FlatList
               data={courses}
@@ -79,7 +75,7 @@ export default function LearnScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 56, //size of heading
+    paddingTop: 70, //size of heading
     alignItems: "center", // Center items horizontally
     justifyContent: "center", // Center items vertically
   },

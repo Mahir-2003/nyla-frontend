@@ -8,7 +8,16 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../utils/firebase";
-import { collection, addDoc, getFirestore, setDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getFirestore,
+  setDoc,
+  doc,
+} from "firebase/firestore";
+import { SafeAreaView } from "react-native-safe-area-context";
+import colors from "../styles/colors";
+import { Image } from "react-native";
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState("");
@@ -58,8 +67,29 @@ export default function SignupScreen({ navigation }) {
   }, []);
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Signup Sceen</Text>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: colors.primary,
+        flexDirection: "column",
+        justifyContent: "flex-start",
+      }}
+    >
+      <View
+        style={{
+          display: "flex",
+          marginVertical: -40,
+        }}
+      >
+        <Image
+          source={require("../../assets/logo.png")}
+          style={{ width: 300, height: 300 }}
+          resizeMode="contain"
+        />
+      </View>
+
       <MyTextInput
         placeholder={"Name"}
         autoCapitalize={"words"}
@@ -68,7 +98,7 @@ export default function SignupScreen({ navigation }) {
           setName(e);
         }}
       />
-
+      <View style={{ marginBottom: 30 }} />
       <MyTextInput
         placeholder={"Email"}
         autoCapitalize={"none"}
@@ -77,7 +107,7 @@ export default function SignupScreen({ navigation }) {
           setEmail(e);
         }}
       />
-
+      <View style={{ marginBottom: 30 }} />
       <MyPassword
         placeholder={"Password"}
         autoCapitalize={"none"}
@@ -87,22 +117,41 @@ export default function SignupScreen({ navigation }) {
           setPassword(e);
         }}
       />
-      <View style={{ marginBottom: 20 }} />
-      <MyBtn
-        text={"Signup"}
-        onPress={() => {
-          handleSignup();
-        }}
-      />
-      <View style={{ marginBottom: 10 }} />
-      <TouchableOpacity
-        style={{}}
-        onPress={() => {
-          navigation.navigate("Login");
-        }}
-      >
-        <Text>Already have an account? Login</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={{ marginBottom: 30 }} />
+      <View style={{ flexDirection: "row", width: "80%" }}>
+        <MyBtn
+          text={"Sign Up"}
+          style={{
+            width: "25%",
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 0,
+            backgroundColor: colors.alt,
+            borderTopLeftRadius: 6,
+            borderBottomLeftRadius: 6,
+          }}
+          textStyle={{ color: "white", fontWeight: "600" }}
+          onPress={() => {
+            handleSignup();
+          }}
+        />
+        <TouchableOpacity
+          style={{
+            width: "75%",
+            backgroundColor: colors.secondaryPink,
+            alignItems: "center",
+            justifyContent: "center",
+            borderTopRightRadius: 6,
+            borderBottomRightRadius: 6,
+          }}
+          onPress={() => {
+            navigation.navigate("Login");
+          }}
+        >
+          <Text style={{ fontWeight: "600" }}>Login with existing account</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }

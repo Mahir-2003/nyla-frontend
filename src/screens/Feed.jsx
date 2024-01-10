@@ -6,6 +6,8 @@ import styles from "../styles/styles";
 import { Post } from "../components/Post";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { getAuthorByUID } from "../utils/firestore";
+import colors from "../styles/colors";
+import { View } from "react-native";
 
 export default function FeedScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
@@ -28,7 +30,6 @@ export default function FeedScreen({ navigation }) {
                 date: postData.createdAt.toDate(),
                 likes: postData.likes || 0, // Add likes
                 likedBy: postData.likedBy || [], // Initialize likedBy as an empty array
-                commentCount: postData.comments ? postData.comments.length : 0, // Get the length of comments array if it exists, otherwise 0
                 ...postData,
                 author: authorData,
               });
@@ -71,12 +72,18 @@ export default function FeedScreen({ navigation }) {
         )}
         keyExtractor={(item) => item.id}
       />
+      <View style={{width: "100%"}}>
+
       <MyBtn
         text={"Create Post"}
+        style={{ backgroundColor: colors.tertiaryPink, justifyContent: "flex-start", marginLeft: 10, marginBottom: 10, borderRadius: 15 }}
+        textStyle={{ fontWeight: 600 }}
         onPress={() => {
           navigation.navigate("CreatePost");
         }}
       />
+      </View>
+
     </SafeAreaView>
   );
 }
